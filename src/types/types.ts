@@ -1,0 +1,1 @@
+export type dispatch = (action: any, state?: any) => any;

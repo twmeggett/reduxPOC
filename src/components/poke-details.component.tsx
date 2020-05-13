@@ -1,22 +1,22 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { FunctionComponent, useState, useContext, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 
 import { StoreContext } from '../store';
 import { fetchPokemon, savePokemon, reset } from '../reducers/poke.reducer';
 import capitalize from '../utils/capitalize';
 
-const PokeDetails = (props) => {
+const PokeDetails = (props: any) => {
     const { state, dispatch } = useContext(StoreContext);
-    const [ pokeId, setPokeId ] = useState();
+    const [ pokeId, setPokeId ] = useState(0);
     const { id } = useParams();
     const goBack = () => props.history.push("/");
     const goToNextPokemon = () => setPokeId(pokeId + 1);
     const goToPrevPokemon = () => (pokeId > 1) && setPokeId(pokeId - 1);
-    const changePokemon = (dir) => () => {
+    const changePokemon = (dir?: 'next') => () => {
         reset(dispatch);
         dir === 'next' ? goToNextPokemon() : goToPrevPokemon();
     }
-    const save = (fail) => () => savePokemon(dispatch, fail);
+    const save = (fail: boolean = false) => () => savePokemon(dispatch, fail);
     
     useEffect(() => {
         setPokeId(parseInt(id));
