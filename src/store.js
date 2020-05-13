@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 
 const [addReducer, addMiddleware, combinedReducer] = (() => {
     let reducers = [];
@@ -14,24 +14,21 @@ const [addReducer, addMiddleware, combinedReducer] = (() => {
     };
     return [addReducer, addMiddleware, combinedReducer]
 })();
-const [getDispatch, setDispatch] = (() => {
-    let dispatch = () => {};
-    return [() => dispatch, (dispatcher) => dispatch = dispatcher]
-})();
 
 export {
     addReducer,
     addMiddleware,
-    getDispatch,
 };
 export const StoreContext = React.createContext();
 export const withStoreContext = (Component, middlewares) => (props) => {
     const [state, dispatch] = useReducer(combinedReducer, combinedReducer());
-    setDispatch(dispatch);
-    middlewares.forEach(middlewares => addMiddleware(middlewares));
+    
+    useEffect(() => {
+        middlewares.forEach(middlewares => addMiddleware(middlewares));
+    }, [])
 
     return (
-        <StoreContext.Provider value={state}>
+        <StoreContext.Provider value={{state, dispatch}}>
             <Component {...props} />
         </StoreContext.Provider>
     );

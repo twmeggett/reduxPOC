@@ -1,12 +1,15 @@
 import axios from 'axios';
 
-import { getDispatch, addReducer } from '../store';
+import { addReducer } from '../store';
 import asyncReducerCreator from '../utils/asyncReducerCreator';
 import combindReducers from '../utils/combindReducers';
 
 const RESET = 'RESET';
 
 const initialState = {
+    isFetchingPokemon: false,
+    isSavingPokemon: false,
+    saveSuccessful: false,
     pokemon: {
         id: null,
         name: '',
@@ -36,13 +39,16 @@ const [
     }
 }));
 
-export const fetchPokemon = async (id) => {
+export const fetchPokemon = async (dispatch, id) => {
     if (id) {
-        const dispatch = getDispatch();
-
         dispatch({type: FETCH_POKEMON_REQUEST});
         try {
-            const payload = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+            const payload = await new Promise (resolve => {
+                setTimeout( function() {
+                    axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`)
+                        .then((resp) => resolve(resp))
+                }, 1000) 
+            });
             
             dispatch({type: FETCH_POKEMON_SUCCESS, payload});
         } catch {
@@ -56,24 +62,18 @@ const [
     SAVE_POKEMON_REQUEST,
     SAVE_POKEMON_SUCCESS,
     SAVE_POKEMON_FAILURE,
-] = asyncReducerCreator(initialState, 'Save', 'pokemon');
+] = asyncReducerCreator(initialState, 'Save', 'pokemon', () => ({saveSuccessful: true}));
 
-export const savePokemon = async (id) => {
-    if (id) {
-        const dispatch = getDispatch();
-
-        dispatch({type: SAVE_POKEMON_REQUEST});
-        try {
-            dispatch({type: SAVE_POKEMON_SUCCESS});
-        } catch {
-            dispatch({type: SAVE_POKEMON_FAILURE});
-        }
+export const savePokemon = async (dispatch) => {
+    dispatch({type: SAVE_POKEMON_REQUEST});
+    try {
+        dispatch({type: SAVE_POKEMON_SUCCESS});
+    } catch {
+        dispatch({type: SAVE_POKEMON_FAILURE});
     }
 }
 
-export const reset = () => {
-    const dispatch = getDispatch();
-
+export const reset = (dispatch) => {
     dispatch({type: RESET});
 }
 
