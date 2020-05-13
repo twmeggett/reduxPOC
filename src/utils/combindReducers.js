@@ -1,0 +1,1 @@
+export default (reducers) => (initialState, action) => reducers.reduce((state, reducer) => reducer(state, action), initialState);
