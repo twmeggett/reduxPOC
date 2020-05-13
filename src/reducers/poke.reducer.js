@@ -5,11 +5,12 @@ import asyncReducerCreator from '../utils/asyncReducerCreator';
 import combindReducers from '../utils/combindReducers';
 
 const RESET = 'RESET';
+const UPDATE_SAVE_MSG = 'UPDATE_SAVE_MSG'
 
 const initialState = {
     isFetchingPokemon: false,
     isSavingPokemon: false,
-    saveSuccessful: false,
+    saveMsg: '',
     pokemon: {
         id: null,
         name: '',
@@ -21,6 +22,12 @@ const reducer = (state = initialState, action) => {
     switch (action.type) {
         case RESET:
             return initialState
+        case UPDATE_SAVE_MSG:
+            return {
+                ...state,
+                saveSuccessful: false,
+                saveMsg: action.msg,
+            }
       default:
         return state
     }
@@ -31,7 +38,7 @@ const [
     FETCH_POKEMON_REQUEST,
     FETCH_POKEMON_SUCCESS,
     FETCH_POKEMON_FAILURE,
-] = asyncReducerCreator(initialState, 'Fetch', 'pokemon', (payload) => ({
+] = asyncReducerCreator(initialState, 'fetch', 'pokemon', (payload) => ({
     pokemon: {
         id: payload.data.id,
         name: payload.data.name,
@@ -62,15 +69,20 @@ const [
     SAVE_POKEMON_REQUEST,
     SAVE_POKEMON_SUCCESS,
     SAVE_POKEMON_FAILURE,
-] = asyncReducerCreator(initialState, 'Save', 'pokemon', () => ({saveSuccessful: true}));
+] = asyncReducerCreator(initialState, 'save', 'pokemon', () => ({saveSuccessful: true}));
 
-export const savePokemon = async (dispatch) => {
+export const savePokemon = async (dispatch, fail) => {
+    dispatch({type: UPDATE_SAVE_MSG, msg: ''});
     dispatch({type: SAVE_POKEMON_REQUEST});
-    try {
-        dispatch({type: SAVE_POKEMON_SUCCESS});
-    } catch {
-        dispatch({type: SAVE_POKEMON_FAILURE});
-    }
+    setTimeout(function() {
+        if (!fail) {
+            dispatch({type: SAVE_POKEMON_SUCCESS});
+            dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Success!'});
+        } else {
+            dispatch({type: SAVE_POKEMON_FAILURE});
+            dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Failed :('});
+        }
+    }, 1000) 
 }
 
 export const reset = (dispatch) => {

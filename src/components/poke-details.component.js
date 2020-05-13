@@ -16,7 +16,7 @@ const PokeDetails = (props) => {
         reset(dispatch);
         dir === 'next' ? goToNextPokemon() : goToPrevPokemon();
     }
-    const save = () => savePokemon(dispatch) 
+    const save = (fail) => () => savePokemon(dispatch, fail);
     
     useEffect(() => {
         setPokeId(parseInt(id));
@@ -31,7 +31,7 @@ const PokeDetails = (props) => {
     }, [pokeId]);
 
     return (
-        <div>
+        <>
             <div>
                 <button onClick={changePokemon()}>Previous</button>
                 <button onClick={changePokemon('next')}>Next</button>
@@ -51,15 +51,19 @@ const PokeDetails = (props) => {
             
             <div>
                 <button onClick={goBack}>Back Home</button>
-                <button onClick={save}>Save</button>
+                <button onClick={save()}>Save</button>
+                <button onClick={save(true)}>Save Fail</button>
             </div>
 
             <div>
                 {
-                    state.pokeReducer.saveSuccessful && <p>Save Success!</p>
+                    state.pokeReducer.isSavingPokemon && <p>...Saving</p>
+                }
+                {
+                    !state.pokeReducer.isSavingPokemon && <p>{state.pokeReducer.saveMsg}</p>
                 }
             </div>
-        </div>
+        </>
     )
 };
 

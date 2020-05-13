@@ -1,27 +1,35 @@
-import capitalize from './capitalize';
+import capitalize from '../utils/capitalize';
 
-export default (initialState, method, name, mapPayload) => {
-    const CONSTANT_BASE = `${method.toUpperCase()}_${name.toUpperCase()}`;
+const actionConstants = {
+    'FETCH': 'isFetching',
+    'SAVE': 'isSaving',
+    'DELETE': 'isDeleting',
+};
+
+export default (initialState, method, item, mapPayload) => {
+    const CONSTANT_BASE = `${method.toUpperCase()}_${item.toUpperCase()}`;
     const CONSTANT_REQUEST = CONSTANT_BASE + '_REQUEST';
     const CONSTANT_SUCCESS = CONSTANT_BASE + '_SUCCESS';
     const CONSTANT_FAILURE = CONSTANT_BASE + '_FAILURE';
-    const methodCapitalized = capitalize(method);
-    const nameCapitalized = capitalize(name);
+    const methodAction = actionConstants[method.toUpperCase()] + capitalize(item);
     const reducer = (state = initialState, action) => {
         switch (action.type) {
             case CONSTANT_REQUEST:
                 return {
                     ...state, 
-                    [`is${methodCapitalized}ing${nameCapitalized}`]: true  
+                    [methodAction]: true,
                 }
             case CONSTANT_SUCCESS:
                 return {
                     ...state,
-                    [`is${methodCapitalized}ing${nameCapitalized}`]: false,
+                    [methodAction]: false,
                     ...(mapPayload ? mapPayload(action.payload) : {}),
                 }
             case CONSTANT_FAILURE:
-                return { ...state, [`is${methodCapitalized}ing${nameCapitalized}`]: false }
+                return {
+                    ...state,
+                    [methodAction]: false,
+                }
           default:
             return state
         }   
