@@ -1,11 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
+import { History } from 'history';
 
 import { StoreContext } from '../store';
 import { fetchPokemon, savePokemon, reset } from '../reducers/poke.reducer';
 import capitalize from '../utils/capitalize';
 
-const PokeDetails = (props: any) => {
+interface IProps {
+    history: History,
+    [key: string]: any,
+}
+
+const PokeDetails = (props: IProps) => {
     const { state, dispatch } = useContext(StoreContext);
     const [ pokeId, setPokeId ] = useState(0);
     const { id } = useParams();
