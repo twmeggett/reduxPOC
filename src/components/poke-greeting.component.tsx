@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default (props) => {
+export default (props: {history: any}) => {
     const goToPokemon = () => {
         props.history.push("/details/9")
     }

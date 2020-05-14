@@ -1,10 +1,11 @@
 import capitalize from './capitalize';
+import { reducer } from '../types/types';
 
 const FETCH = 'fetch';
 const SAVE = 'save';
 const DELETE = 'delete';
 type METHODS = typeof FETCH | typeof SAVE | typeof DELETE;
-type mapPayload = (payload: {[key: string]: any}) => {};
+type mapPayload = (payload: {[key: string]: any}) => Object;
 
 const actionConstants: { [key: string]: string } = {
     [FETCH]: 'isFetching',
@@ -13,16 +14,15 @@ const actionConstants: { [key: string]: string } = {
 };
 
 interface IAsyncReducerCreator {
-    (initialState: {}, method: METHODS, item: string, mapPayload: mapPayload): [any, string, string, string];
+    (initialState: Object, method: METHODS, entity: string, mapPayload: mapPayload): [reducer, string, string, string];
 };
-
-const asyncReducerCreator: IAsyncReducerCreator = (initialState, method, item, mapPayload) => {
-    const CONSTANT_BASE = `${method.toUpperCase()}_${item.toUpperCase()}`;
+const asyncReducerCreator: IAsyncReducerCreator = (initialState, method, entity, mapPayload) => {
+    const CONSTANT_BASE = `${method.toUpperCase()}_${entity.toUpperCase()}`;
     const CONSTANT_REQUEST = CONSTANT_BASE + '_REQUEST';
     const CONSTANT_SUCCESS = CONSTANT_BASE + '_SUCCESS';
     const CONSTANT_FAILURE = CONSTANT_BASE + '_FAILURE';
-    const methodAction: string = actionConstants[method.toUpperCase()] + capitalize(item);
-    const reducer = (state = initialState, action: {type: string, payload: {[key: string]: any}}) => {
+    const methodAction: string = actionConstants[method.toLowerCase()] + capitalize(entity);
+    const reducer: reducer = (state = initialState, action) => {
         switch (action.type) {
             case CONSTANT_REQUEST:
                 return {
