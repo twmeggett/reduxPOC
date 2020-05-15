@@ -22,13 +22,17 @@ export {
 export const StoreContext = React.createContext();
 export const withStoreContext = (Component, middlewares) => (props) => {
     const [state, dispatch] = useReducer(combinedReducer, combinedReducer());
+    const getState = () => state;
+    const call = (callback) => {
+        callback(dispatch, getState)
+    };
     
     useEffect(() => {
         middlewares.forEach(middlewares => addMiddleware(middlewares));
     }, [])
 
     return (
-        <StoreContext.Provider value={{state, dispatch}}>
+        <StoreContext.Provider value={{state, dispatch, call}}>
             <Component {...props} />
         </StoreContext.Provider>
     );

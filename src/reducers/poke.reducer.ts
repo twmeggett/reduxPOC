@@ -3,7 +3,7 @@ import axios from 'axios';
 import { addReducer } from '../store';
 import asyncReducerCreator from '../utils/asyncReducerCreator';
 import combindReducers from '../utils/combindReducers';
-import { dispatch } from '../types/types'
+import { dispatch as Dispatch } from '../types/types'
 
 const RESET = 'RESET';
 const UPDATE_SAVE_MSG = 'UPDATE_SAVE_MSG'
@@ -55,24 +55,25 @@ const [
     pokemon: payload
 }));
 
-export const fetchPokemon = async (dispatch: dispatch, id: number) => {
-    if (id) {
-        dispatch({type: FETCH_POKEMON_REQUEST});
-        try {
-            const payload: IPokemon = await new Promise (resolve => {
-                setTimeout( function() {
-                    axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`)
-                        .then((resp) => resolve({
-                            id: resp.data.id,
-                            name: resp.data.name,
-                            img: resp.data.sprites.front_default,
-                        }))
-                }, 1000) 
-            });
-            
-            dispatch({type: FETCH_POKEMON_SUCCESS, payload});
-        } catch {
-            dispatch({type: FETCH_POKEMON_FAILURE});
+export const fetchPokemon = (id: number) => {
+    return async (dispatch: Dispatch) => {
+        if (id) {
+            dispatch({type: FETCH_POKEMON_REQUEST});
+            try {
+                const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+                dispatch(
+                    {
+                        type: FETCH_POKEMON_SUCCESS, 
+                        payload: {
+                            id: response.data.id,
+                            name: response.data.name,
+                            img: response.data.sprites.front_default,
+                        }
+                    }
+                );
+            } catch {
+                dispatch({type: FETCH_POKEMON_FAILURE});
+            }
         }
     }
 }
@@ -84,22 +85,26 @@ const [
     SAVE_POKEMON_FAILURE,
 ] = asyncReducerCreator(initialState, 'save', 'pokemon', () => ({saveSuccessful: true}));
 
-export const savePokemon = async (dispatch: dispatch, fail: boolean) => {
-    dispatch({type: UPDATE_SAVE_MSG, msg: ''});
-    dispatch({type: SAVE_POKEMON_REQUEST});
-    setTimeout(function() {
-        if (!fail) {
-            dispatch({type: SAVE_POKEMON_SUCCESS});
-            dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Success!'});
-        } else {
-            dispatch({type: SAVE_POKEMON_FAILURE});
-            dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Failed :('});
-        }
-    }, 1000) 
+export const savePokemon = (fail: boolean) => {
+    return (dispatch: Dispatch) => {
+        dispatch({type: UPDATE_SAVE_MSG, msg: ''});
+        dispatch({type: SAVE_POKEMON_REQUEST});
+        setTimeout(function() {
+            if (!fail) {
+                dispatch({type: SAVE_POKEMON_SUCCESS});
+                dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Success!'});
+            } else {
+                dispatch({type: SAVE_POKEMON_FAILURE});
+                dispatch({type: UPDATE_SAVE_MSG, msg: 'Save Failed :('});
+            }
+        }, 1000) 
+    }
 }
 
-export const reset = (dispatch: dispatch) => {
-    dispatch({type: RESET});
+export const reset = () => {
+    return (dispatch: Dispatch) => {
+        dispatch({type: RESET});
+    }
 }
 
 addReducer({name: 'pokeReducer', reducer: combindReducers([reducer, fetchPokemonReducer, savePokemonReducer])});

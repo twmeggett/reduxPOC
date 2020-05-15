@@ -12,28 +12,30 @@ interface IProps {
 }
 
 const PokeDetails = (props: IProps) => {
-    const { state, dispatch } = useContext(StoreContext);
+    const { state, call } = useContext(StoreContext);
     const [ pokeId, setPokeId ] = useState(0);
     const { id } = useParams();
     const goBack = () => props.history.push("/");
     const goToNextPokemon = () => setPokeId(pokeId + 1);
     const goToPrevPokemon = () => (pokeId > 1) && setPokeId(pokeId - 1);
     const changePokemon = (dir?: 'next') => () => {
-        reset(dispatch);
+        call(reset());
         dir === 'next' ? goToNextPokemon() : goToPrevPokemon();
     }
-    const save = (fail: boolean = false) => () => savePokemon(dispatch, fail);
+    const save = (fail: boolean = false) => () => call(savePokemon(fail));
     
     useEffect(() => {
-        setPokeId(parseInt(id));
-
         return function cleanup() {
-            reset(dispatch);
+            call(reset());
         }
     }, []);
 
     useEffect(() => {
-        fetchPokemon(dispatch, pokeId);
+        setPokeId(parseInt(id));
+    }, [id]);
+
+    useEffect(() => {
+        call(fetchPokemon(pokeId));
     }, [pokeId]);
 
     return (
